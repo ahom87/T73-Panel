@@ -114,8 +114,8 @@ async def keep_alive():
 @app.on_event("startup")
 async def startup():
     global http_client
-    limits = httpx.Limits(max_connections=5000, max_keepalive_connections=1000)
-    timeout = httpx.Timeout(180.0, connect=30.0)
+    limits = httpx.Limits(max_connections=3000, max_keepalive_connections=800)
+    timeout = httpx.Timeout(120.0, connect=30.0)
     http_client = httpx.AsyncClient(limits=limits, timeout=timeout, follow_redirects=True)
     logger.info(f"🚀 VROOM started on port {CONFIG['port']}")
     asyncio.create_task(keep_alive())
@@ -288,9 +288,6 @@ async def get_stats(_=Depends(require_auth)):
         "domain": get_domain(),
         "cpu_percent": psutil.cpu_percent(interval=0.1),
         "memory_percent": psutil.virtual_memory().percent,
-        "disk_percent": psutil.disk_usage('/').percent,
-        "disk_used": round(psutil.disk_usage('/').used / (1024**3), 2),
-        "disk_total": round(psutil.disk_usage('/').total / (1024**3), 2),
         "hourly_traffic": dict(hourly_traffic),
     }
 
@@ -442,7 +439,7 @@ async def get_subscription(uid: str, _=Depends(require_auth)):
 
 
 # ============================================================
-# 📄 SUBSCRIPTION PAGE - ULTIMATE BEAUTY EDITION
+# 📄 SUBSCRIPTION PAGE - PERFECT SMOOTH SCROLL + COSMIC
 # ============================================================
 @app.get("/sub/{uid}")
 async def subscription_page(uid: str):
@@ -508,121 +505,81 @@ async def subscription_page(uid: str):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>🚀 VROOM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Vazirmatn:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         html, body {{
             height: 100%;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
         }}
         body {{
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            font-family: 'Vazirmatn', 'Orbitron', 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000000 100%);
             color: #fff;
             direction: rtl;
             padding: 20px;
             position: relative;
             overflow-y: auto;
-            background-image: 
-                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
-                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
-                radial-gradient(2px 2px at 50px 160px, #ddd, transparent),
-                radial-gradient(2px 2px at 90px 40px, rgba(255,255,255,0.6), transparent),
-                radial-gradient(2px 2px at 130px 80px, #fff, transparent),
-                radial-gradient(2px 2px at 160px 30px, rgba(255,255,255,0.7), transparent);
-            background-size: 200px 200px;
-            background-repeat: repeat;
         }}
-        /* Animated cosmic background */
-        body::before {{
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(ellipse at 20% 50%, rgba(124,92,252,0.05) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 50%, rgba(167,139,250,0.05) 0%, transparent 50%);
-            z-index: 0;
-            pointer-events: none;
-        }}
+        /* Smooth scroll for the entire page */
+        html {{ scroll-behavior: smooth; }}
         .lang-toggle {{
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 1000;
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 16px;
-            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 8px 16px;
             color: #fff;
             cursor: pointer;
-            font-family: 'Vazirmatn', sans-serif;
+            font-family: inherit;
             font-size: 13px;
             font-weight: 600;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.3s;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }}
-        .lang-toggle:hover {{ 
-            background: rgba(255,255,255,0.15); 
-            transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 12px 48px rgba(124,92,252,0.2);
-        }}
+        .lang-toggle:hover {{ background: rgba(255,255,255,0.2); transform: scale(1.05); }}
         .lang-toggle .dot {{
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #34d399;
-            box-shadow: 0 0 20px rgba(52,211,153,0.6);
+            background: #22c55e;
+            box-shadow: 0 0 12px #22c55e;
             animation: pulse-dot 2s infinite;
         }}
-        @keyframes pulse-dot {{ 0%,100% {{ opacity: 1; transform: scale(1); }} 50% {{ opacity: 0.5; transform: scale(0.8); }} }}
+        @keyframes pulse-dot {{ 0%,100% {{ opacity: 1; }} 50% {{ opacity: 0.4; }} }}
         .theme-selector {{
             position: fixed;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
+            bottom: 20px;
+            left: 20px;
             z-index: 100;
             display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background: rgba(255,255,255,0.06);
-            backdrop-filter: blur(20px);
-            padding: 14px 10px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.1);
         }}
         .theme-btn {{
-            width: 36px;
-            height: 36px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
+            transition: all 0.3s ease;
         }}
-        .theme-btn:hover {{ 
-            transform: scale(1.2); 
-            border-color: rgba(255,255,255,0.5);
-            box-shadow: 0 0 30px rgba(255,215,0,0.15);
-        }}
-        .theme-btn.active {{ 
-            border-color: #ffd700; 
-            box-shadow: 0 0 25px rgba(255,215,0,0.3);
-            transform: scale(1.1);
-        }}
+        .theme-btn:hover {{ transform: scale(1.2); border-color: #fff; }}
+        .theme-btn.active {{ border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.5); }}
         .theme-btn.space {{ background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000000 100%); }}
         .theme-btn.ocean {{ background: linear-gradient(135deg, #1a2980, #26d0ce); }}
         .theme-btn.sunset {{ background: linear-gradient(135deg, #f12711, #f5af19); }}
@@ -634,7 +591,7 @@ async def subscription_page(uid: str):
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.85);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -644,21 +601,20 @@ async def subscription_page(uid: str):
         .loader-wrapper.hide {{ opacity: 0; visibility: hidden; }}
         @keyframes spin-loader {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
         .loader {{
-            width: 70px;
-            height: 70px;
-            border: 3px solid rgba(255,255,255,0.05);
-            border-top: 3px solid #7c5cfc;
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #6c5ce7;
             border-radius: 50%;
-            animation: spin-loader 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
-            box-shadow: 0 0 60px rgba(124,92,252,0.2);
+            animation: spin-loader 1s linear infinite;
+            box-shadow: 0 0 40px rgba(108,92,231,0.3);
         }}
         .loader-text {{
-            margin-top: 25px;
-            color: #a78bfa;
+            margin-top: 20px;
+            color: #a29bfe;
             font-size: 0.9rem;
-            letter-spacing: 4px;
+            letter-spacing: 2px;
             text-align: center;
-            font-family: 'Orbitron', monospace;
         }}
         .stars-layer {{
             position: fixed;
@@ -680,7 +636,7 @@ async def subscription_page(uid: str):
         @keyframes shoot {{
             0% {{ transform: translate(0,0) rotate(-45deg); opacity: 1; }}
             70% {{ opacity: 1; }}
-            100% {{ transform: translate(-800px, 800px) rotate(-45deg); opacity: 0; }}
+            100% {{ transform: translate(-600px, 600px) rotate(-45deg); opacity: 0; }}
         }}
         .shooting-star {{
             position: fixed;
@@ -688,8 +644,8 @@ async def subscription_page(uid: str):
             height: 3px;
             background: #fff;
             border-radius: 50%;
-            box-shadow: 0 0 20px 5px rgba(255,255,255,0.3);
-            animation: shoot 5s linear infinite;
+            box-shadow: 0 0 10px 3px rgba(255,255,255,0.5);
+            animation: shoot 4s linear infinite;
             z-index: 0;
             pointer-events: none;
         }}
@@ -698,14 +654,14 @@ async def subscription_page(uid: str):
             position: absolute;
             top: 50%;
             right: 0;
-            width: 120px;
+            width: 100px;
             height: 1px;
-            background: linear-gradient(to left, rgba(255,255,255,0.5), transparent);
+            background: linear-gradient(to left, rgba(255,255,255,0.6), transparent);
             transform: translateY(-50%);
         }}
         .shooting-star:nth-child(1) {{ top: 10%; left: 70%; animation-delay: 0s; }}
-        .shooting-star:nth-child(2) {{ top: 30%; left: 50%; animation-delay: 3s; }}
-        .shooting-star:nth-child(3) {{ top: 60%; left: 80%; animation-delay: 6s; }}
+        .shooting-star:nth-child(2) {{ top: 30%; left: 50%; animation-delay: 2.5s; }}
+        .shooting-star:nth-child(3) {{ top: 60%; left: 80%; animation-delay: 5s; }}
         .space-scene {{
             position: fixed;
             top: 0;
@@ -717,20 +673,17 @@ async def subscription_page(uid: str):
             display: flex;
             justify-content: center;
             align-items: center;
-            opacity: 0.3;
         }}
         @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
         @keyframes orbit-spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
-        @keyframes float {{ 0%,100% {{ transform: translateY(0px) scale(1); }} 50% {{ transform: translateY(-20px) scale(1.02); }} }}
-        @keyframes pulse {{ 0%,100% {{ box-shadow: 0 0 80px rgba(75,158,218,0.2), inset -30px -30px 60px rgba(0,0,0,0.7); }} 50% {{ box-shadow: 0 0 120px rgba(75,158,218,0.3), inset -35px -35px 70px rgba(0,0,0,0.8); }} }}
-        .earth-wrapper {{ position: relative; animation: float 6s ease-in-out infinite; }}
+        @keyframes float {{ 0%,100% {{ transform: translateY(0px) scale(1); }} 50% {{ transform: translateY(-18px) scale(1.02); }} }}
+        @keyframes pulse {{ 0%,100% {{ box-shadow: 0 0 80px rgba(75,158,218,0.3), inset -30px -30px 60px rgba(0,0,0,0.7); }} 50% {{ box-shadow: 0 0 120px rgba(75,158,218,0.5), inset -35px -35px 70px rgba(0,0,0,0.8); }} }}
+        .earth-wrapper {{ position: relative; animation: float 5s ease-in-out infinite; }}
         .earth {{
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
+            width: 200px; height: 200px; border-radius: 50%;
             position: relative;
-            animation: spin 25s linear infinite, pulse 4s ease-in-out infinite;
-            box-shadow: 0 0 80px rgba(75,158,218,0.2), inset -30px -30px 60px rgba(0,0,0,0.7);
+            animation: spin 20s linear infinite, pulse 4s ease-in-out infinite;
+            box-shadow: 0 0 80px rgba(75,158,218,0.3), inset -30px -30px 60px rgba(0,0,0,0.7);
             overflow: hidden;
         }}
         .earth-layer {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; }}
@@ -747,28 +700,27 @@ async def subscription_page(uid: str):
         }}
         .earth-clouds {{
             background:
-                radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.2) 10%, transparent 25%),
-                radial-gradient(ellipse at 70% 60%, rgba(255,255,255,0.15) 15%, transparent 30%),
-                radial-gradient(ellipse at 40% 80%, rgba(255,255,255,0.15) 12%, transparent 22%),
-                radial-gradient(ellipse at 85% 20%, rgba(255,255,255,0.12) 8%, transparent 20%),
-                radial-gradient(ellipse at 10% 70%, rgba(255,255,255,0.1) 10%, transparent 20%);
-            animation: spin 50s linear infinite reverse;
-            opacity: 0.4;
+                radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.3) 10%, transparent 25%),
+                radial-gradient(ellipse at 70% 60%, rgba(255,255,255,0.25) 15%, transparent 30%),
+                radial-gradient(ellipse at 40% 80%, rgba(255,255,255,0.2) 12%, transparent 22%),
+                radial-gradient(ellipse at 85% 20%, rgba(255,255,255,0.2) 8%, transparent 20%),
+                radial-gradient(ellipse at 10% 70%, rgba(255,255,255,0.15) 10%, transparent 20%);
+            animation: spin 40s linear infinite reverse;
+            opacity: 0.5;
         }}
-        .earth-shine {{ background: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.25) 0%, transparent 50%); }}
+        .earth-shine {{ background: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.3) 0%, transparent 50%); }}
         .orbit {{
             position: absolute;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 50%;
             animation: orbit-spin var(--orbit-duration) linear infinite;
         }}
-        .orbit-1 {{ width: 340px; height: 340px; --orbit-duration: 20s; }}
-        .orbit-2 {{ width: 460px; height: 460px; --orbit-duration: 35s; border-color: rgba(255,215,0,0.05); }}
-        .orbit-3 {{ width: 580px; height: 580px; --orbit-duration: 50s; border-color: rgba(0,255,200,0.04); }}
+        .orbit-1 {{ width: 380px; height: 380px; --orbit-duration: 20s; }}
+        .orbit-2 {{ width: 520px; height: 520px; --orbit-duration: 35s; border-color: rgba(255,215,0,0.08); }}
+        .orbit-3 {{ width: 660px; height: 660px; --orbit-duration: 50s; border-color: rgba(0,255,200,0.06); }}
         .satellite {{
             position: absolute;
-            width: 12px;
-            height: 12px;
+            width: 14px; height: 14px;
             border-radius: 50%;
             box-shadow: 0 0 30px currentColor;
         }}
@@ -777,253 +729,206 @@ async def subscription_page(uid: str):
         .satellite-3 {{ top: 20%; left: 5%; background: #4ecdc4; color: #4ecdc4; animation-delay: -20s; }}
         .rocket {{
             position: fixed;
-            z-index: 1;
-            font-size: 28px;
-            animation: rocket-fly 10s linear infinite;
-            filter: drop-shadow(0 0 30px rgba(255,100,0,0.4));
+            z-index: 2;
+            font-size: 30px;
+            animation: rocket-fly 8s linear infinite;
+            filter: drop-shadow(0 0 20px rgba(255,100,0,0.6));
             pointer-events: none;
         }}
-        .rocket:nth-child(2) {{ animation-delay: 5s; font-size: 20px; filter: drop-shadow(0 0 20px rgba(0,200,255,0.3)); }}
+        .rocket:nth-child(2) {{ animation-delay: 4s; font-size: 22px; filter: drop-shadow(0 0 15px rgba(0,200,255,0.6)); }}
         @keyframes rocket-fly {{
             0% {{ transform: translate(-100px, 100px) rotate(-45deg) scale(0.5); opacity: 0; }}
-            10% {{ opacity: 1; }}
-            90% {{ opacity: 1; }}
-            100% {{ transform: translate(100vw, -100vh) rotate(-45deg) scale(1.8); opacity: 0; }}
+            20% {{ opacity: 1; }}
+            80% {{ opacity: 1; }}
+            100% {{ transform: translate(100vw, -100vh) rotate(-45deg) scale(1.5); opacity: 0; }}
         }}
         .card {{
             position: relative;
             z-index: 10;
-            background: rgba(255,255,255,0.04);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border-radius: 40px;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
             padding: 40px 45px;
             width: 100%;
-            max-width: 580px;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            max-width: 550px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6);
             text-align: center;
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s ease;
             max-height: 95vh;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
-            will-change: transform;
         }}
         .card::-webkit-scrollbar {{ width: 4px; }}
         .card::-webkit-scrollbar-track {{ background: transparent; }}
-        .card::-webkit-scrollbar-thumb {{ background: rgba(255,255,255,0.12); border-radius: 4px; }}
-        .card:hover {{
-            box-shadow: 0 50px 100px rgba(0,0,0,0.6), 0 0 60px rgba(124,92,252,0.03);
-        }}
+        .card::-webkit-scrollbar-thumb {{ background: rgba(255,255,255,0.2); border-radius: 4px; }}
+        .card:hover {{ transform: translateY(-8px) scale(1.01); box-shadow: 0 50px 100px rgba(0,0,0,0.7); }}
         .notification {{
-            background: rgba(255,215,0,0.06);
-            border: 1px solid rgba(255,215,0,0.08);
-            border-radius: 16px;
-            padding: 12px 18px;
-            margin-bottom: 20px;
-            font-size: 0.8rem;
+            background: rgba(255,215,0,0.08);
+            border: 1px solid rgba(255,215,0,0.15);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            font-size: 0.82rem;
             color: #ffd700;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
+            transition: all 0.4s ease;
             flex-shrink: 0;
-            font-family: 'Vazirmatn', sans-serif;
         }}
-        .notification.success {{ background: rgba(52,211,153,0.06); border-color: rgba(52,211,153,0.1); color: #34d399; }}
+        .notification.success {{ background: rgba(105,219,124,0.08); border-color: rgba(105,219,124,0.15); color: #69db7c; }}
         .badge {{
             display: inline-block;
-            background: rgba(124,92,252,0.15);
-            color: #a78bfa;
-            padding: 6px 24px;
+            background: rgba(108,92,231,0.2);
+            color: #a29bfe;
+            padding: 4px 18px;
             border-radius: 50px;
             font-size: 0.7rem;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            border: 1px solid rgba(124,92,252,0.1);
-            margin-bottom: 14px;
-            font-weight: 700;
-            font-family: 'Orbitron', monospace;
+            border: 1px solid rgba(108,92,231,0.2);
+            margin-bottom: 12px;
             flex-shrink: 0;
         }}
         h1 {{
-            font-size: 2.4rem;
-            font-weight: 900;
-            margin-bottom: 4px;
-            background: linear-gradient(135deg, #7c5cfc, #a78bfa, #7c5cfc);
-            background-size: 200% 200%;
+            font-size: 2.1rem;
+            font-weight: 800;
+            margin-bottom: 2px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: shimmer-text 4s ease-in-out infinite;
-            font-family: 'Orbitron', monospace;
-            letter-spacing: 2px;
+            text-shadow: none;
             flex-shrink: 0;
         }}
-        @keyframes shimmer-text {{
-            0%,100% {{ background-position: 0% 50%; }}
-            50% {{ background-position: 100% 50%; }}
-        }}
-        .subtitle {{ 
-            font-size: 0.85rem; 
-            opacity: 0.3; 
-            margin-bottom: 28px; 
-            letter-spacing: 3px;
-            font-weight: 300;
-            font-family: 'Orbitron', monospace;
-            flex-shrink: 0;
-        }}
-        .status-with-dot {{ display: flex; align-items: center; gap: 8px; justify-content: center; }}
+        .subtitle {{ font-size: 0.85rem; opacity: 0.4; margin-bottom: 25px; letter-spacing: 1px; flex-shrink: 0; }}
+        .status-with-dot {{ display: flex; align-items: center; gap: 6px; }}
         .status-dot {{
             display: inline-block;
-            width: 10px;
-            height: 10px;
+            width: 10px; height: 10px;
             border-radius: 50%;
             flex-shrink: 0;
         }}
-        .status-dot.active {{ background: #34d399; box-shadow: 0 0 20px rgba(52,211,153,0.5); }}
-        .status-dot.limited {{ background: #fbbf24; box-shadow: 0 0 20px rgba(251,191,36,0.5); }}
-        .status-dot.expired {{ background: #f87171; box-shadow: 0 0 20px rgba(248,113,113,0.5); }}
+        .status-dot.active {{ background: #69db7c; box-shadow: 0 0 12px #69db7c; }}
+        .status-dot.limited {{ background: #ffd93d; box-shadow: 0 0 12px #ffd93d; }}
+        .status-dot.expired {{ background: #ff6b6b; box-shadow: 0 0 12px #ff6b6b; }}
         .info-grid {{
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 10px;
             text-align: right;
-            margin-bottom: 18px;
+            margin-bottom: 15px;
         }}
         .info-item {{
-            background: rgba(255,255,255,0.03);
-            padding: 14px 16px;
-            border-radius: 18px;
-            border: 1px solid rgba(255,255,255,0.03);
-            transition: all 0.3s;
-        }}
-        .info-item:hover {{ background: rgba(255,255,255,0.06); transform: translateY(-2px); }}
-        .info-item.full {{ grid-column: span 2; }}
-        .label {{ 
-            font-size: 0.55rem; 
-            text-transform: uppercase; 
-            opacity: 0.35; 
-            letter-spacing: 2px; 
-            display: block; 
-            margin-bottom: 4px;
-            font-weight: 700;
-        }}
-        .value {{ font-size: 1.1rem; font-weight: 700; }}
-        .status-active {{ color: #34d399; }}
-        .status-limited {{ color: #fbbf24; }}
-        .status-expired {{ color: #f87171; }}
-        .inbounds-section {{ margin: 14px 0 12px; text-align: right; flex-shrink: 0; }}
-        .inbounds-title {{ 
-            font-size: 0.6rem; 
-            text-transform: uppercase; 
-            opacity: 0.3; 
-            letter-spacing: 2px; 
-            margin-bottom: 8px;
-            font-weight: 700;
-        }}
-        .inbound-tags {{ display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }}
-        .inbound-tag {{
             background: rgba(255,255,255,0.04);
-            padding: 5px 16px;
+            padding: 12px 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.3s, transform 0.2s;
+        }}
+        .info-item:hover {{ background: rgba(255,255,255,0.08); transform: translateY(-2px); }}
+        .info-item.full {{ grid-column: span 2; }}
+        .label {{ font-size: 0.6rem; text-transform: uppercase; opacity: 0.5; letter-spacing: 1.5px; display: block; margin-bottom: 2px; }}
+        .value {{ font-size: 1.05rem; font-weight: 700; }}
+        .status-active {{ color: #69db7c; }}
+        .status-limited {{ color: #ffd93d; }}
+        .status-expired {{ color: #ff6b6b; }}
+        .inbounds-section {{ margin: 12px 0 10px; text-align: right; flex-shrink: 0; }}
+        .inbounds-title {{ font-size: 0.65rem; text-transform: uppercase; opacity: 0.4; letter-spacing: 1px; margin-bottom: 6px; }}
+        .inbound-tags {{ display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }}
+        .inbound-tag {{
+            background: rgba(255,255,255,0.05);
+            padding: 3px 12px;
             border-radius: 20px;
             font-size: 0.65rem;
-            border: 1px solid rgba(255,255,255,0.04);
-            color: rgba(255,255,255,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.6);
             transition: all 0.3s;
-            font-family: 'Vazirmatn', sans-serif;
         }}
-        .inbound-tag:hover {{ 
-            background: rgba(124,92,252,0.12); 
-            border-color: rgba(124,92,252,0.15); 
-            color: #a78bfa;
-            transform: translateY(-2px);
-        }}
-        .progress-section {{ margin: 12px 0 16px; flex-shrink: 0; }}
-        .progress-label {{ display: flex; justify-content: space-between; font-size: 0.75rem; opacity: 0.5; margin-bottom: 6px; }}
-        .progress-bar {{ width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }}
-        .progress-fill {{ height: 100%; background: linear-gradient(90deg, #7c5cfc, #a78bfa); border-radius: 10px; transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); width: {percent}%; box-shadow: 0 0 20px rgba(124,92,252,0.2); }}
-        .qr-section {{ margin: 18px 0 8px; display: flex; justify-content: center; flex-shrink: 0; }}
+        .inbound-tag:hover {{ background: rgba(108,92,231,0.2); border-color: rgba(108,92,231,0.3); color: #a29bfe; }}
+        .progress-section {{ margin: 10px 0 15px; flex-shrink: 0; }}
+        .progress-label {{ display: flex; justify-content: space-between; font-size: 0.75rem; opacity: 0.6; margin-bottom: 4px; }}
+        .progress-bar {{ width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }}
+        .progress-fill {{ height: 100%; background: linear-gradient(90deg, #6c5ce7, #a29bfe); border-radius: 10px; transition: width 0.8s ease; width: {percent}%; }}
+        .qr-section {{ margin: 15px 0 5px; display: flex; justify-content: center; flex-shrink: 0; }}
         .qr-container {{
             background: rgba(255,255,255,0.95);
-            padding: 16px;
-            border-radius: 20px;
-            display: inline-block;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.3);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }}
-        .qr-container:hover {{ transform: scale(1.04) rotate(2deg); box-shadow: 0 12px 60px rgba(124,92,252,0.15); }}
-        .qr-container img {{ display: block; width: 180px; height: 180px; border-radius: 12px; max-width: 100%; }}
-        .qr-label {{ font-size: 0.55rem; opacity: 0.3; margin-top: 8px; letter-spacing: 2px; }}
-        .config-box {{
-            background: rgba(0,0,0,0.3);
-            padding: 14px 18px;
+            padding: 12px;
             border-radius: 16px;
+            display: inline-block;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }}
+        .qr-container:hover {{ transform: scale(1.05); }}
+        .qr-container img {{ display: block; width: 150px; height: 150px; border-radius: 8px; }}
+        .qr-label {{ font-size: 0.6rem; opacity: 0.4; margin-top: 6px; letter-spacing: 1px; }}
+        .config-box {{
+            background: rgba(0,0,0,0.4);
+            padding: 12px 14px;
+            border-radius: 12px;
             font-size: 0.7rem;
             font-family: 'Courier New', monospace;
             word-break: break-all;
-            margin: 14px 0;
-            max-height: 110px;
+            margin: 12px 0;
+            max-height: 120px;
             overflow-y: auto;
-            border: 1px solid rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
             text-align: left;
             direction: ltr;
-            color: rgba(255,255,255,0.6);
-            line-height: 1.8;
+            color: #aaa;
+            line-height: 1.6;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
         }}
         .config-box::-webkit-scrollbar {{ width: 3px; }}
-        .config-box::-webkit-scrollbar-thumb {{ background: rgba(255,255,255,0.1); border-radius: 3px; }}
+        .config-box::-webkit-scrollbar-thumb {{ background: rgba(255,255,255,0.2); border-radius: 3px; }}
         .btn-group {{
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
-            margin-top: 16px;
+            margin-top: 15px;
             flex-shrink: 0;
         }}
         .btn {{
-            padding: 12px 28px;
+            padding: 10px 20px;
             border-radius: 50px;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 0.8rem;
             border: none;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            font-family: 'Vazirmatn', sans-serif;
+            gap: 5px;
         }}
-        .btn-primary {{ background: linear-gradient(135deg, #7c5cfc, #a78bfa); color: #fff; box-shadow: 0 8px 30px rgba(124,92,252,0.25); }}
-        .btn-primary:hover {{ transform: translateY(-4px) scale(1.04); box-shadow: 0 12px 48px rgba(124,92,252,0.35); }}
-        .btn-secondary {{ background: linear-gradient(135deg, #f7971e, #ffd200); color: #000; box-shadow: 0 8px 30px rgba(255,210,0,0.2); }}
-        .btn-secondary:hover {{ transform: translateY(-4px) scale(1.04); box-shadow: 0 12px 48px rgba(255,210,0,0.3); }}
-        .btn-success {{ background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; box-shadow: 0 8px 30px rgba(56,239,125,0.2); }}
-        .btn-success:hover {{ transform: translateY(-4px) scale(1.04); box-shadow: 0 12px 48px rgba(56,239,125,0.3); }}
-        .btn-sm {{ padding: 8px 18px; font-size: 0.7rem; }}
-        .footer-text {{ margin-top: 20px; font-size: 0.55rem; opacity: 0.12; letter-spacing: 3px; font-family: 'Orbitron', monospace; flex-shrink: 0; }}
+        .btn-primary {{ background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; box-shadow: 0 8px 25px rgba(108,92,231,0.3); }}
+        .btn-primary:hover {{ transform: translateY(-3px); box-shadow: 0 12px 35px rgba(108,92,231,0.4); }}
+        .btn-secondary {{ background: linear-gradient(135deg, #f7971e, #ffd200); color: #000; box-shadow: 0 8px 25px rgba(255,210,0,0.3); }}
+        .btn-secondary:hover {{ transform: translateY(-3px); box-shadow: 0 12px 35px rgba(255,210,0,0.4); }}
+        .btn-success {{ background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; box-shadow: 0 8px 25px rgba(56,239,125,0.3); }}
+        .btn-success:hover {{ transform: translateY(-3px); box-shadow: 0 12px 35px rgba(56,239,125,0.4); }}
+        .btn-sm {{ padding: 6px 14px; font-size: 0.7rem; }}
+        .footer-text {{ margin-top: 18px; font-size: 0.6rem; opacity: 0.2; letter-spacing: 1px; flex-shrink: 0; }}
         @media (max-width: 500px) {{
             .card {{ padding: 20px 16px; }}
-            h1 {{ font-size: 1.6rem; }}
+            h1 {{ font-size: 1.5rem; }}
             .info-grid {{ grid-template-columns: 1fr; }}
             .info-item.full {{ grid-column: span 1; }}
             .earth {{ width: 100px; height: 100px; }}
             .orbit-1 {{ width: 200px; height: 200px; }}
             .orbit-2 {{ width: 260px; height: 260px; }}
             .orbit-3 {{ width: 320px; height: 320px; }}
-            .btn {{ font-size: 0.65rem; padding: 8px 16px; }}
-            .qr-container img {{ width: 120px; height: 120px; }}
-            .theme-selector {{ right: 10px; padding: 10px 6px; gap: 8px; }}
-            .theme-btn {{ width: 28px; height: 28px; }}
-            .lang-toggle {{ top: 10px; right: 10px; padding: 6px 14px; font-size: 10px; }}
-            .config-box {{ max-height: 70px; font-size: 0.6rem; padding: 10px 12px; }}
+            .btn {{ font-size: 0.65rem; padding: 6px 12px; }}
+            .qr-container img {{ width: 80px; height: 80px; }}
+            .theme-selector {{ bottom: 10px; left: 50%; transform: translateX(-50%); padding: 6px 10px; gap: 6px; }}
+            .theme-btn {{ width: 22px; height: 22px; }}
+            .lang-toggle {{ top: 10px; right: 10px; padding: 5px 10px; font-size: 10px; }}
+            .config-box {{ max-height: 80px; font-size: 0.6rem; padding: 8px 10px; }}
         }}
-        .glow-purple {{ text-shadow: 0 0 60px rgba(124,92,252,0.15); }}
-        @keyframes float-orb {{
-            0%,100% {{ transform: translateY(0px) rotate(0deg); }}
-            50% {{ transform: translateY(-10px) rotate(5deg); }}
-        }}
+        .glow-purple {{ text-shadow: 0 0 40px rgba(108,92,231,0.4); }}
     </style>
 </head>
 <body>
@@ -1041,7 +946,7 @@ async def subscription_page(uid: str):
     <div class="loader-wrapper" id="loaderWrapper">
         <div style="text-align:center;">
             <div class="loader"></div>
-            <div class="loader-text" id="loaderText">🌌 INITIALIZING... / در حال اتصال...</div>
+            <div class="loader-text" id="loaderText">🌌 در حال برقراری ارتباط... / Connecting...</div>
         </div>
     </div>
     <div class="stars-layer" id="starsLayer"></div>
@@ -1060,7 +965,7 @@ async def subscription_page(uid: str):
         </div>
         <div class="badge">✦ VROOM</div>
         <h1 class="glow-purple">🚀 VROOM</h1>
-        <div class="subtitle" id="subtitleText">GATEWAY // درگاه اتصال</div>
+        <div class="subtitle" id="subtitleText">درگاه اتصال / Gateway</div>
         <div class="info-grid">
             <div class="info-item full">
                 <span class="label" id="statusLabel">وضعیت / Status</span>
@@ -1096,30 +1001,30 @@ async def subscription_page(uid: str):
             <button class="btn btn-secondary btn-sm" onclick="copySub()" id="subBtn">📥 ساب / Sub</button>
             <button class="btn btn-success btn-sm" onclick="showQR()" id="qrBtn">📱 QR</button>
         </div>
-        <div class="footer-text">✦ VROOM GATEWAY v3.0 ✦</div>
+        <div class="footer-text">✦ VROOM Gateway v2.0 ✦</div>
     </div>
     <script>
         let currentLang = localStorage.getItem('vroom_sub_lang') || 'fa';
         const translations = {{
             fa: {{
-                loader: '🌌 INITIALIZING... / در حال اتصال...',
-                notification: 'ارتباط با ایستگاه فضایی برقرار است / Connection established',
-                subtitle: 'GATEWAY // درگاه اتصال',
-                status: 'وضعیت / Status',
-                used: '📊 مصرف / Used',
-                limit: '📦 حجم کل / Total',
-                expiry: '⏳ انقضا / Expiry',
-                days: '📅 روز باقی‌مانده / Days Left',
-                servers: '🌐 سرورهای فعال / Active Servers',
-                usage: 'میزان مصرف / Usage',
-                copy: '📋 کپی / Copy',
-                sub: '📥 ساب / Sub',
+                loader: '🌌 در حال برقراری ارتباط...',
+                notification: 'ارتباط با ایستگاه فضایی برقرار است',
+                subtitle: 'درگاه اتصال',
+                status: 'وضعیت',
+                used: '📊 مصرف',
+                limit: '📦 حجم کل',
+                expiry: '⏳ انقضا',
+                days: '📅 روز باقی‌مانده',
+                servers: '🌐 سرورهای فعال',
+                usage: 'میزان مصرف',
+                copy: '📋 کپی',
+                sub: '📥 ساب',
                 qr: '📱 QR'
             }},
             en: {{
-                loader: '🌌 INITIALIZING...',
+                loader: '🌌 Connecting...',
                 notification: 'Connection established',
-                subtitle: 'GATEWAY',
+                subtitle: 'Gateway',
                 status: 'Status',
                 used: '📊 Used',
                 limit: '📦 Total',
@@ -1174,20 +1079,20 @@ async def subscription_page(uid: str):
             }});
         }});
         window.addEventListener('load', function() {{
-            setTimeout(() => document.getElementById('loaderWrapper').classList.add('hide'), 1800);
+            setTimeout(() => document.getElementById('loaderWrapper').classList.add('hide'), 1500);
         }});
         (function createStars() {{
             const container = document.getElementById('starsLayer');
-            for (let i = 0; i < 350; i++) {{
+            for (let i = 0; i < 300; i++) {{
                 const star = document.createElement('div');
                 star.className = 'star';
-                const size = Math.random() * 4 + 0.5;
+                const size = Math.random() * 3.5 + 0.5;
                 star.style.width = size + 'px';
                 star.style.height = size + 'px';
                 star.style.left = Math.random() * 100 + '%';
                 star.style.top = Math.random() * 100 + '%';
-                star.style.setProperty('--duration', (Math.random() * 5 + 2) + 's');
-                star.style.setProperty('--delay', (Math.random() * 7) + 's');
+                star.style.setProperty('--duration', (Math.random() * 4 + 2) + 's');
+                star.style.setProperty('--delay', (Math.random() * 6) + 's');
                 container.appendChild(star);
             }}
         }})();
@@ -1199,14 +1104,9 @@ async def subscription_page(uid: str):
         function showQR() {{
             const qrImg = document.querySelector('.qr-container img');
             const currentSrc = qrImg.src;
-            const newSize = Math.min(window.innerWidth - 80, 450);
-            qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=' + newSize + 'x' + newSize + '&data=' + encodeURIComponent(config);
-            setTimeout(() => {{
-                if (!qrImg.src.includes('size=' + newSize)) {{
-                    qrImg.src = currentSrc;
-                }}
-            }}, 5000);
-            alert('📱 QR Code بزرگنمایی شد! / QR Code enlarged!');
+            qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + encodeURIComponent(config);
+            setTimeout(() => qrImg.src = currentSrc, 3000);
+            alert('📱 QR Code نمایش داده شد! / QR Code displayed!');
         }}
         function copyText(text, message) {{
             if (navigator.clipboard) {{
@@ -1229,9 +1129,9 @@ async def subscription_page(uid: str):
 
 
 # ============================================================
-# WEBSOCKET & PROXY - MAX SPEED (2MB buffer)
+# WEBSOCKET & PROXY - MAX SPEED (1MB buffer - NO LIMITS)
 # ============================================================
-RELAY_BUF = 2 * 1024 * 1024
+RELAY_BUF = 1024 * 1024
 
 async def parse_vless_header(first_chunk: bytes):
     if len(first_chunk) < 24:
@@ -1274,7 +1174,7 @@ async def check_quota(uid: str, extra_bytes: int) -> bool:
             return False
         if is_expired(link):
             return False
-        return True
+        return True  # NO LIMITS
 
 async def add_usage(uid: str, n: int):
     async with LINKS_LOCK:
@@ -1510,7 +1410,7 @@ document.getElementById('login-form').addEventListener('submit',async e=>{
 
 
 # ============================================================
-# 📊 DASHBOARD - ULTIMATE BEAUTY EDITION
+# 📊 DASHBOARD - COMPLETE REDESIGN - BEAUTIFUL + FEATURE RICH
 # ============================================================
 DASHBOARD_HTML = r"""<!DOCTYPE html>
 <html lang="fa" data-theme="dark">
@@ -1521,7 +1421,7 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1533,11 +1433,11 @@ body{font-family:'Vazirmatn','Inter',-apple-system,BlinkMacSystemFont,sans-serif
 .sidebar{width:200px;background:var(--sidebar-bg);border-left:1px solid var(--border);display:flex;flex-direction:column;position:fixed;right:0;top:0;bottom:0;z-index:100;transition:all .4s}
 .sidebar-brand{padding:14px 14px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
 .sidebar-brand-left{display:flex;align-items:center;gap:8px}
-.sidebar-brand-left .brand-name{font-size:15px;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:'Orbitron',monospace}
+.sidebar-brand-left .brand-name{font-size:15px;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .sidebar-brand-right button{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .3s}
 .sidebar-brand-right button:hover{border-color:var(--primary);color:var(--primary)}
 .sidebar-nav{flex:1;padding:8px 6px;overflow-y:auto}
-.nav-section{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;padding:12px 8px 4px;font-family:'Orbitron',monospace}
+.nav-section{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;padding:12px 8px 4px}
 .nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;margin:1px 0;border-radius:8px;color:var(--text2);font-size:11px;font-weight:500;cursor:pointer;transition:all .3s;border:none;background:none;width:100%;text-align:right}
 .nav-item:hover{background:var(--primary-dim);color:var(--text);transform:translateX(-3px)}
 .nav-item.active{background:var(--primary-dim);color:var(--primary);font-weight:600;box-shadow:inset -3px 0 0 var(--primary)}
@@ -1551,13 +1451,13 @@ body{font-family:'Vazirmatn','Inter',-apple-system,BlinkMacSystemFont,sans-serif
 .sidebar-footer .footer-btn:hover:not(.active){border-color:var(--border2);color:var(--text2)}
 .sidebar-footer .logout-btn{width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:none;color:var(--text3);font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:4px}
 .sidebar-footer .logout-btn:hover{background:var(--red-dim);border-color:rgba(248,113,113,0.2);color:var(--red)}
-.sidebar-footer .version{text-align:center;font-size:8px;color:var(--text3);margin-top:4px;opacity:0.5;font-family:'Orbitron',monospace}
+.sidebar-footer .version{text-align:center;font-size:8px;color:var(--text3);margin-top:4px;opacity:0.5}
 .main{margin-right:200px;flex:1;padding:12px 14px 24px;min-height:100vh}
 .page{display:none;animation:pageIn .4s}
 .page.active{display:block}
 @keyframes pageIn{from{opacity:0;transform:translateY(10px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 .page-header{margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
-.page-title{font-size:18px;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:'Orbitron',monospace;letter-spacing:1px}
+.page-title{font-size:18px;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .page-sub{font-size:10px;color:var(--text3);margin-top:2px}
 .stats-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;transition:all .3s;position:relative;overflow:hidden;backdrop-filter:blur(10px)}
@@ -1691,17 +1591,11 @@ body{font-family:'Vazirmatn','Inter',-apple-system,BlinkMacSystemFont,sans-serif
 .quick-actions{display:flex;gap:4px;flex-wrap:wrap}
 .quick-actions .btn{font-size:9px;padding:4px 10px}
 .glow-box{background:linear-gradient(135deg,var(--primary-dim),transparent);border:1px solid rgba(124,92,252,0.1);border-radius:10px;padding:10px;text-align:center}
-.system-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
-.system-item{background:var(--surface2);border-radius:8px;padding:8px 10px;text-align:center;border:1px solid var(--border);transition:all .3s}
-.system-item:hover{border-color:var(--primary);transform:translateY(-2px)}
-.system-item .label{font-size:7px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em}
-.system-item .value{font-size:13px;font-weight:700;color:var(--text)}
-.system-item .sub{font-size:8px;color:var(--text2)}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
-<div class="mobile-header"><span style="font-weight:900;font-size:14px;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:'Orbitron',monospace">VROOM</span><button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('show')">☰</button></div>
+<div class="mobile-header"><span style="font-weight:900;font-size:14px;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent">VROOM</span><button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('show')">☰</button></div>
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('show')"></div>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
@@ -1709,58 +1603,56 @@ body{font-family:'Vazirmatn','Inter',-apple-system,BlinkMacSystemFont,sans-serif
     <div class="sidebar-brand-right"><button onclick="toggleTheme()" id="theme-btn">🌓</button></div>
   </div>
   <nav class="sidebar-nav">
-    <div class="nav-section">MAIN</div>
+    <div class="nav-section">اصلی</div>
     <button class="nav-item active" data-page="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span id="navDashboard">داشبورد</span></button>
     <button class="nav-item" data-page="inbounds"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg><span id="navInbounds">اینباندها</span><span class="nav-badge" id="links-badge">0</span></button>
     <button class="nav-item" data-page="traffic"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span id="navTraffic">ترافیک</span></button>
     <button class="nav-item" data-page="addresses"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg><span id="navAddresses">آی‌پی تمیز</span></button>
     <button class="nav-item" data-page="domain"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><span id="navDomain">دامنه</span></button>
-    <div class="nav-section">SYSTEM</div>
+    <div class="nav-section">سیستم</div>
     <button class="nav-item" data-page="security"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><span id="navSecurity">امنیت</span></button>
   </nav>
   <div class="sidebar-footer">
     <div class="footer-row"><button class="footer-btn active" onclick="setLang('fa')" id="lang-fa">🇮🇷</button><button class="footer-btn" onclick="setLang('en')" id="lang-en">🇬🇧</button></div>
     <button class="logout-btn" onclick="fetch('/api/logout',{method:'POST'}).then(()=>location.href='/login')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span id="logoutText">خروج</span></button>
-    <div class="version">VROOM v3.0</div>
+    <div class="version">VROOM v2.0</div>
   </div>
 </aside>
 <main class="main">
   <section class="page active" id="page-dashboard">
-    <div class="page-header"><div><div class="page-title" id="dashboardTitle">📊 DASHBOARD</div><div class="page-sub" id="lastUpdate">🔄 آخرین بروزرسانی: --</div></div><div class="quick-actions"><button class="btn btn-secondary" onclick="quickCreate(0.5,'GB')" id="dash05">+0.5</button><button class="btn btn-primary" onclick="quickCreate(1,'GB')" id="dash1">+1</button><button class="btn btn-success" onclick="quickCreate(5,'GB')" id="dash5">+5</button></div></div>
+    <div class="page-header"><div><div class="page-title" id="dashboardTitle">✨ داشبورد</div><div class="page-sub" id="lastUpdate">🔄 آخرین بروزرسانی: --</div></div><div class="quick-actions"><button class="btn btn-secondary" onclick="quickCreate(0.5,'GB')" id="dash05">+۰.۵</button><button class="btn btn-primary" onclick="quickCreate(1,'GB')" id="dash1">+۱</button><button class="btn btn-success" onclick="quickCreate(5,'GB')" id="dash5">+۵</button></div></div>
     <div class="stats-row">
-      <div class="stat-card"><span class="stat-icon">📊</span><div class="stat-label" id="sTrafficLabel">ترافیک کل</div><div class="stat-value" id="s-traffic">--<span class="stat-unit">MB</span></div></div>
-      <div class="stat-card"><span class="stat-icon">📡</span><div class="stat-label" id="sLinksLabel">اینباندها</div><div class="stat-value" id="s-links">--</div></div>
+      <div class="stat-card"><span class="stat-icon">📊</span><div class="stat-label" id="sTrafficLabel">ترافیک</div><div class="stat-value" id="s-traffic">--<span class="stat-unit">MB</span></div></div>
+      <div class="stat-card"><span class="stat-icon">📡</span><div class="stat-label" id="sLinksLabel">اینباند</div><div class="stat-value" id="s-links">--</div></div>
       <div class="stat-card"><span class="stat-icon">⏱️</span><div class="stat-label" id="sUptimeLabel">آپتایم</div><div class="stat-value" id="s-uptime" style="font-size:14px">--</div></div>
       <div class="stat-card"><span class="stat-icon">🌐</span><div class="stat-label" id="sDomainLabel">دامنه</div><div class="stat-value" id="s-domain" style="font-size:11px;word-break:break-all;font-weight:600">--</div></div>
     </div>
-    <div class="card"><div class="card-header"><div class="card-title" id="resourcesTitle">⚡ SYSTEM RESOURCES</div></div>
-      <div class="system-grid">
-        <div class="system-item"><div class="label">💾 DISK</div><div class="value" id="s-disk-used">--</div><div class="sub" id="s-disk-total">از --</div></div>
-        <div class="system-item"><div class="label">🧠 RAM</div><div class="value" id="s-mem-val">--%</div><div class="sub" id="s-mem-detail">-- / -- GB</div></div>
-        <div class="system-item"><div class="label">⚡ CPU</div><div class="value" id="s-cpu-val">--%</div><div class="sub">مصرف</div></div>
-        <div class="system-item"><div class="label">🔗 CONNECTIONS</div><div class="value" id="s-connections">--</div><div class="sub">فعال</div></div>
+    <div class="card"><div class="card-header"><div class="card-title" id="resourcesTitle">⚡ منابع سیستم</div></div>
+      <div class="circle-wrap">
+        <div class="circle cpu"><canvas id="cpuCanvas" width="60" height="60"></canvas><span class="label">CPU</span><span class="value" id="s-cpu-val">--%</span><span class="sub">مصرف</span></div>
+        <div class="circle memory"><canvas id="memCanvas" width="60" height="60"></canvas><span class="label">رم</span><span class="value" id="s-mem-val">--%</span><span class="sub">مصرف</span></div>
       </div>
       <div class="speed-display">
-        <div class="speed-item"><div class="label" id="dlLabel">📥 DOWNLOAD</div><div class="value" id="dl-speed">0</div><div class="unit">Mbps</div></div>
-        <div class="speed-item"><div class="label" id="ulLabel">📤 UPLOAD</div><div class="value" id="ul-speed">0</div><div class="unit">Mbps</div></div>
-        <div class="speed-item"><div class="label" id="pingLabel">📶 PING</div><div class="value" id="ping-speed">0</div><div class="unit">ms</div></div>
+        <div class="speed-item"><div class="label" id="dlLabel">📥 دانلود</div><div class="value" id="dl-speed">0</div><div class="unit">Mbps</div></div>
+        <div class="speed-item"><div class="label" id="ulLabel">📤 آپلود</div><div class="value" id="ul-speed">0</div><div class="unit">Mbps</div></div>
+        <div class="speed-item"><div class="label" id="pingLabel">📶 پینگ</div><div class="value" id="ping-speed">0</div><div class="unit">ms</div></div>
       </div>
     </div>
     <div class="grid-2">
-      <div class="card"><div class="card-header"><div class="card-title" id="chartTitle">📈 TRAFFIC CHART</div></div><div style="height:130px"><canvas id="trafficChart"></canvas></div></div>
-      <div class="card"><div class="card-header"><div class="card-title">⚡ QUICK ACCESS</div></div>
-        <div class="glow-box" style="margin-bottom:6px"><span style="font-size:11px;color:var(--text2)">🔗 Active Connections: <strong style="color:var(--primary)" id="quickConnections">0</strong></span></div>
+      <div class="card"><div class="card-header"><div class="card-title" id="chartTitle">📈 ترافیک</div></div><div style="height:130px"><canvas id="trafficChart"></canvas></div></div>
+      <div class="card"><div class="card-header"><div class="card-title">📋 سریع</div></div>
+        <div class="glow-box" style="margin-bottom:6px"><span style="font-size:11px;color:var(--text2)">🔗 اتصالات فعال: <strong style="color:var(--primary)" id="quickConnections">0</strong></span></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-          <button class="btn btn-secondary btn-sm" onclick="switchPage('inbounds')">📡 Inbounds</button>
-          <button class="btn btn-secondary btn-sm" onclick="switchPage('traffic')">📊 Traffic</button>
-          <button class="btn btn-secondary btn-sm" onclick="switchPage('addresses')">🌐 IP</button>
-          <button class="btn btn-secondary btn-sm" onclick="switchPage('domain')">🌍 Domain</button>
+          <button class="btn btn-secondary btn-sm" onclick="switchPage('inbounds')">📡 اینباندها</button>
+          <button class="btn btn-secondary btn-sm" onclick="switchPage('traffic')">📊 ترافیک</button>
+          <button class="btn btn-secondary btn-sm" onclick="switchPage('addresses')">🌐 آی‌پی</button>
+          <button class="btn btn-secondary btn-sm" onclick="switchPage('domain')">🌍 دامنه</button>
         </div>
       </div>
     </div>
   </section>
   <section class="page" id="page-inbounds">
-    <div class="page-header"><div><div class="page-title" id="inboundTitle">📡 INBOUNDS</div><div class="page-sub" id="inboundSub">مدیریت اتصالات VLESS</div></div><button class="btn btn-primary" onclick="showAddModal()" id="addBtn">➕ افزودن</button></div>
+    <div class="page-header"><div><div class="page-title" id="inboundTitle">📡 اینباندها</div><div class="page-sub" id="inboundSub">مدیریت اتصالات VLESS</div></div><button class="btn btn-primary" onclick="showAddModal()" id="addBtn">➕ افزودن</button></div>
     <div class="inbounds-toolbar"><div class="search-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="inbound-search" placeholder="جستجو..." oninput="filterInbounds()"></div><div class="filter-chips"><button class="chip active" onclick="setFilter('all',this)" id="filterAll">همه</button><button class="chip" onclick="setFilter('active',this)" id="filterActive">فعال</button><button class="chip" onclick="setFilter('disabled',this)" id="filterDisabled">غیرفعال</button></div></div>
     <div class="card" style="padding:0;overflow:hidden;border-radius:10px">
       <div class="table-wrap"><table class="table"><thead><tr><th style="width:24px">#</th><th id="thName">نام</th><th style="width:44px" id="thType">نوع</th><th id="thTraffic">ترافیک</th><th style="width:50px" id="thIP">IP</th><th style="width:50px" id="thStatus">وضعیت</th><th style="width:100px" id="thActions">عملیات</th></tr></thead><tbody id="links-tbody"></tbody></table></div>
@@ -1769,19 +1661,19 @@ body{font-family:'Vazirmatn','Inter',-apple-system,BlinkMacSystemFont,sans-serif
     </div>
   </section>
   <section class="page" id="page-traffic">
-    <div class="page-header"><div><div class="page-title" id="trafficTitle">📊 TRAFFIC</div><div class="page-sub" id="trafficSub">آمار و ارقام</div></div></div>
+    <div class="page-header"><div><div class="page-title" id="trafficTitle">📊 ترافیک</div><div class="page-sub" id="trafficSub">آمار و ارقام</div></div></div>
     <div class="card"><div class="card-header"><div class="card-title" id="overviewTitle">📋 خلاصه</div></div><div class="status-item"><span class="status-key" id="totalTrafficLabel">📥 کل ترافیک</span><span class="status-val" id="t-traffic">-- MB</span></div><div class="status-item"><span class="status-key" id="totalRequestsLabel">📨 کل درخواست‌ها</span><span class="status-val" id="t-reqs">--</span></div><div class="status-item"><span class="status-key" id="uptimeLabel2">⏱️ آپتایم</span><span class="status-val" id="t-uptime">--</span></div><div class="status-item"><span class="status-key" id="errorsLabel">🔴 خطاها</span><span class="status-val" id="t-errors" style="color:var(--red)">--</span></div><div class="status-item"><span class="status-key" id="connectionsLabel">🔗 اتصالات فعال</span><span class="status-val" id="t-connections">--</span></div></div>
   </section>
   <section class="page" id="page-addresses">
-    <div class="page-header"><div><div class="page-title" id="addressTitle">🌐 CLEAN IP</div><div class="page-sub" id="addressSub">مدیریت آی‌پی‌ها</div></div><button class="btn btn-primary" onclick="showAddAddressModal()" id="addAddressBtn">➕ افزودن</button></div>
+    <div class="page-header"><div><div class="page-title" id="addressTitle">🌐 آی‌پی تمیز</div><div class="page-sub" id="addressSub">مدیریت آی‌پی‌ها</div></div><button class="btn btn-primary" onclick="showAddAddressModal()" id="addAddressBtn">➕ افزودن</button></div>
     <div class="card"><div class="card-header"><div class="card-title" id="addressListTitle">📋 لیست آی‌پی‌ها</div></div><div class="status-item" style="flex-direction:column;gap:4px;padding:0"><div style="display:flex;justify-content:space-between;width:100%;padding:4px 0"><span class="status-key" style="color:var(--text3);font-size:10px" id="defaultAddress">پیش‌فرض: www.speedtest.net</span></div><div id="address-list" style="display:flex;flex-direction:column;gap:4px;width:100%;padding-bottom:4px"></div></div></div>
   </section>
   <section class="page" id="page-domain">
-    <div class="page-header"><div><div class="page-title" id="domainTitle">🌐 DOMAIN</div><div class="page-sub" id="domainSub">جایگزینی دامنه</div></div></div>
+    <div class="page-header"><div><div class="page-title" id="domainTitle">🌐 دامنه</div><div class="page-sub" id="domainSub">جایگزینی دامنه</div></div></div>
     <div class="card" style="max-width:440px"><div class="card-header"><div class="card-title" id="domainSettings">⚙️ تنظیمات</div></div><div id="domain-current" style="margin-bottom:8px"><div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">🌐</span><div><div style="font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em" id="currentDomainLabel">دامنه فعلی</div><div id="domain-value" style="font-size:12px;font-weight:600;color:var(--text);margin-top:1px;font-family:monospace">--</div></div></div><button class="btn btn-danger btn-sm" onclick="clearDomain()" style="display:none" id="domain-clear-btn">🗑️</button></div></div><div style="padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:8px"><div style="font-size:8px;font-weight:700;color:var(--text3);margin-bottom:2px;text-transform:uppercase;letter-spacing:0.05em" id="defaultDomainLabel">دامنه پیش‌فرض</div><div id="render-domain" style="font-size:12px;color:var(--text2);font-family:monospace">--</div></div><div class="form-group"><label class="form-label" id="newDomainLabel">دامنه جدید</label><div style="display:flex;gap:6px"><input class="form-input" id="domain-input" placeholder="example.com" style="flex:1"><button class="btn btn-primary" onclick="saveDomain()" id="saveDomainBtn">💾</button></div></div></div>
   </section>
   <section class="page" id="page-security">
-    <div class="page-header"><div><div class="page-title" id="securityTitle">🔒 SECURITY</div><div class="page-sub" id="securitySub">تغییر رمز</div></div></div>
+    <div class="page-header"><div><div class="page-title" id="securityTitle">🔒 امنیت</div><div class="page-sub" id="securitySub">تغییر رمز</div></div></div>
     <div class="card" style="max-width:360px"><div class="card-header"><div class="card-title" id="changePassTitle">🔑 تغییر رمز</div></div><div class="form-group"><label class="form-label" id="curPassLabel">رمز فعلی</label><input class="form-input" type="password" id="cur-pw" placeholder="رمز فعلی"></div><div class="form-group"><label class="form-label" id="newPassLabel">رمز جدید</label><input class="form-input" type="password" id="new-pw" placeholder="حداقل ۴ کاراکتر"></div><button class="btn btn-primary" onclick="changePassword()" style="width:100%;justify-content:center;padding:8px" id="changePassBtn">🔄 تغییر رمز</button></div>
   </section>
 </main>
@@ -1802,22 +1694,22 @@ const TRANSLATIONS = {
   fa: {
     navDashboard: 'داشبورد', navInbounds: 'اینباندها', navTraffic: 'ترافیک', navAddresses: 'آی‌پی تمیز',
     navDomain: 'دامنه', navSecurity: 'امنیت', logoutText: 'خروج',
-    dashboardTitle: '📊 DASHBOARD', lastUpdate: '🔄 آخرین بروزرسانی: --',
-    sTrafficLabel: 'ترافیک کل', sLinksLabel: 'اینباندها', sUptimeLabel: 'آپتایم', sDomainLabel: 'دامنه',
-    resourcesTitle: '⚡ SYSTEM RESOURCES', dlLabel: '📥 DOWNLOAD', ulLabel: '📤 UPLOAD', pingLabel: '📶 PING',
-    chartTitle: '📈 TRAFFIC CHART',
-    inboundTitle: '📡 INBOUNDS', inboundSub: 'مدیریت اتصالات VLESS', addBtn: '➕ افزودن',
+    dashboardTitle: '✨ داشبورد', lastUpdate: '🔄 آخرین بروزرسانی: --',
+    sTrafficLabel: 'ترافیک', sLinksLabel: 'اینباند', sUptimeLabel: 'آپتایم', sDomainLabel: 'دامنه',
+    resourcesTitle: '⚡ منابع سیستم', dlLabel: '📥 دانلود', ulLabel: '📤 آپلود', pingLabel: '📶 پینگ',
+    chartTitle: '📈 ترافیک',
+    inboundTitle: '📡 اینباندها', inboundSub: 'مدیریت اتصالات VLESS', addBtn: '➕ افزودن',
     filterAll: 'همه', filterActive: 'فعال', filterDisabled: 'غیرفعال',
     thName: 'نام', thType: 'نوع', thTraffic: 'ترافیک', thIP: 'IP', thStatus: 'وضعیت', thActions: 'عملیات',
     emptyText: 'هیچ اینباندی یافت نشد',
-    trafficTitle: '📊 TRAFFIC', trafficSub: 'آمار و ارقام', overviewTitle: '📋 خلاصه',
+    trafficTitle: '📊 ترافیک', trafficSub: 'آمار و ارقام', overviewTitle: '📋 خلاصه',
     totalTrafficLabel: '📥 کل ترافیک', totalRequestsLabel: '📨 کل درخواست‌ها',
     uptimeLabel2: '⏱️ آپتایم', errorsLabel: '🔴 خطاها', connectionsLabel: '🔗 اتصالات فعال',
-    addressTitle: '🌐 CLEAN IP', addressSub: 'مدیریت آی‌پی‌ها', addAddressBtn: '➕ افزودن',
+    addressTitle: '🌐 آی‌پی تمیز', addressSub: 'مدیریت آی‌پی‌ها', addAddressBtn: '➕ افزودن',
     addressListTitle: '📋 لیست آی‌پی‌ها', defaultAddress: 'پیش‌فرض: www.speedtest.net',
-    domainTitle: '🌐 DOMAIN', domainSub: 'جایگزینی دامنه', domainSettings: '⚙️ تنظیمات',
+    domainTitle: '🌐 دامنه', domainSub: 'جایگزینی دامنه', domainSettings: '⚙️ تنظیمات',
     currentDomainLabel: 'دامنه فعلی', defaultDomainLabel: 'دامنه پیش‌فرض', newDomainLabel: 'دامنه جدید',
-    securityTitle: '🔒 SECURITY', securitySub: 'تغییر رمز', changePassTitle: '🔑 تغییر رمز',
+    securityTitle: '🔒 امنیت', securitySub: 'تغییر رمز', changePassTitle: '🔑 تغییر رمز',
     curPassLabel: 'رمز فعلی', newPassLabel: 'رمز جدید', changePassBtn: '🔄 تغییر رمز',
     addModalTitle: '➕ افزودن اینباند', nameLabel: 'نام', limitLabel2: 'محدودیت ترافیک',
     unitLabel: 'واحد', expiryLabel2: 'انقضا (روز)', dlSpeedLabel: 'دانلود (Mbps)',
@@ -1831,22 +1723,22 @@ const TRANSLATIONS = {
   en: {
     navDashboard: 'Dashboard', navInbounds: 'Inbounds', navTraffic: 'Traffic', navAddresses: 'Clean IP',
     navDomain: 'Domain', navSecurity: 'Security', logoutText: 'Logout',
-    dashboardTitle: '📊 DASHBOARD', lastUpdate: '🔄 Last update: --',
-    sTrafficLabel: 'Total Traffic', sLinksLabel: 'Inbounds', sUptimeLabel: 'Uptime', sDomainLabel: 'Domain',
-    resourcesTitle: '⚡ SYSTEM RESOURCES', dlLabel: '📥 DOWNLOAD', ulLabel: '📤 UPLOAD', pingLabel: '📶 PING',
-    chartTitle: '📈 TRAFFIC CHART',
-    inboundTitle: '📡 INBOUNDS', inboundSub: 'VLESS over WebSocket', addBtn: '➕ Add',
+    dashboardTitle: '✨ Dashboard', lastUpdate: '🔄 Last update: --',
+    sTrafficLabel: 'Traffic', sLinksLabel: 'Inbounds', sUptimeLabel: 'Uptime', sDomainLabel: 'Domain',
+    resourcesTitle: '⚡ System Resources', dlLabel: '📥 Download', ulLabel: '📤 Upload', pingLabel: '📶 Ping',
+    chartTitle: '📈 Traffic',
+    inboundTitle: '📡 Inbounds', inboundSub: 'VLESS over WebSocket', addBtn: '➕ Add',
     filterAll: 'All', filterActive: 'Active', filterDisabled: 'Disabled',
     thName: 'Name', thType: 'Type', thTraffic: 'Traffic', thIP: 'IP', thStatus: 'Status', thActions: 'Actions',
     emptyText: 'No inbounds found',
-    trafficTitle: '📊 TRAFFIC', trafficSub: 'Statistics', overviewTitle: '📋 Overview',
+    trafficTitle: '📊 Traffic', trafficSub: 'Statistics', overviewTitle: '📋 Overview',
     totalTrafficLabel: '📥 Total Traffic', totalRequestsLabel: '📨 Total Requests',
     uptimeLabel2: '⏱️ Uptime', errorsLabel: '🔴 Errors', connectionsLabel: '🔗 Active Connections',
-    addressTitle: '🌐 CLEAN IP', addressSub: 'Manage IPs', addAddressBtn: '➕ Add',
+    addressTitle: '🌐 Clean IP', addressSub: 'Manage IPs', addAddressBtn: '➕ Add',
     addressListTitle: '📋 IP List', defaultAddress: 'Default: www.speedtest.net',
-    domainTitle: '🌐 DOMAIN', domainSub: 'Replace domain', domainSettings: '⚙️ Settings',
+    domainTitle: '🌐 Domain', domainSub: 'Replace domain', domainSettings: '⚙️ Settings',
     currentDomainLabel: 'Current Domain', defaultDomainLabel: 'Default Domain', newDomainLabel: 'New Domain',
-    securityTitle: '🔒 SECURITY', securitySub: 'Change password', changePassTitle: '🔑 Change Password',
+    securityTitle: '🔒 Security', securitySub: 'Change password', changePassTitle: '🔑 Change Password',
     curPassLabel: 'Current Password', newPassLabel: 'New Password', changePassBtn: '🔄 Change Password',
     addModalTitle: '➕ Add Inbound', nameLabel: 'Name', limitLabel2: 'Traffic Limit',
     unitLabel: 'Unit', expiryLabel2: 'Expiry (days)', dlSpeedLabel: 'Download (Mbps)',
@@ -1897,7 +1789,7 @@ function fmtLimit(b){if(b===0)return 'نامحدود';const gb=b/1073741824;retu
 
 function updateCircle(id, percent, color){const canvas=document.getElementById(id);if(!canvas)return;const ctx=canvas.getContext('2d');const w=canvas.width,h=canvas.height;const cx=w/2,cy=h/2,r=Math.min(w,h)/2-5,start=-Math.PI/2,end=start+(percent/100)*2*Math.PI;ctx.clearRect(0,0,w,h);ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=4;ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,r,start,end);ctx.strokeStyle=color;ctx.lineWidth=4;ctx.lineCap='round';ctx.shadowColor=color;ctx.shadowBlur=12;ctx.stroke();ctx.shadowBlur=0}
 
-async function loadStats(){try{const r=await fetch('/stats');if(!r.ok)throw new Error();statsData=await r.json();document.getElementById('s-traffic').innerHTML=statsData.total_traffic_mb+'<span class="stat-unit">MB</span>';document.getElementById('s-links').textContent=statsData.links_count;document.getElementById('s-uptime').textContent=statsData.uptime;document.getElementById('s-domain').textContent=statsData.domain;document.getElementById('links-badge').textContent=statsData.links_count;document.getElementById('last-update').textContent='🔄 '+(lang==='fa'?'آخرین بروزرسانی: ':'Last update: ')+new Date().toLocaleTimeString(lang==='fa'?'fa-IR':'en-US');document.getElementById('t-traffic').textContent=statsData.total_traffic_mb+' MB';document.getElementById('t-reqs').textContent=statsData.total_requests.toLocaleString(lang==='fa'?'fa-IR':'en-US');document.getElementById('t-uptime').textContent=statsData.uptime;document.getElementById('t-errors').textContent=statsData.total_errors;document.getElementById('t-connections').textContent=statsData.active_connections;document.getElementById('quickConnections').textContent=statsData.active_connections;document.getElementById('s-connections').textContent=statsData.active_connections;if(statsData.cpu_percent!==undefined){updateCircle('cpuCanvas', statsData.cpu_percent, '#7c5cfc');document.getElementById('s-cpu-val').textContent=statsData.cpu_percent.toFixed(1)+'%';}if(statsData.memory_percent!==undefined){updateCircle('memCanvas', statsData.memory_percent, '#34d399');document.getElementById('s-mem-val').textContent=statsData.memory_percent.toFixed(1)+'%';const memUsed=statsData.memory_percent;const memTotal=8;document.getElementById('s-mem-detail').textContent=((memTotal*memUsed)/100).toFixed(2)+' / '+memTotal+' GB';}if(statsData.disk_percent!==undefined){document.getElementById('s-disk-used').textContent=statsData.disk_percent.toFixed(1)+'%';document.getElementById('s-disk-total').textContent=statsData.disk_used+' / '+statsData.disk_total+' GB';}updateSpeed();updateChart();loadDomain();}catch(e){}}
+async function loadStats(){try{const r=await fetch('/stats');if(!r.ok)throw new Error();statsData=await r.json();document.getElementById('s-traffic').innerHTML=statsData.total_traffic_mb+'<span class="stat-unit">MB</span>';document.getElementById('s-links').textContent=statsData.links_count;document.getElementById('s-uptime').textContent=statsData.uptime;document.getElementById('s-domain').textContent=statsData.domain;document.getElementById('links-badge').textContent=statsData.links_count;document.getElementById('last-update').textContent='🔄 '+(lang==='fa'?'آخرین بروزرسانی: ':'Last update: ')+new Date().toLocaleTimeString(lang==='fa'?'fa-IR':'en-US');document.getElementById('t-traffic').textContent=statsData.total_traffic_mb+' MB';document.getElementById('t-reqs').textContent=statsData.total_requests.toLocaleString(lang==='fa'?'fa-IR':'en-US');document.getElementById('t-uptime').textContent=statsData.uptime;document.getElementById('t-errors').textContent=statsData.total_errors;document.getElementById('t-connections').textContent=statsData.active_connections;document.getElementById('quickConnections').textContent=statsData.active_connections;if(statsData.cpu_percent!==undefined){updateCircle('cpuCanvas', statsData.cpu_percent, '#7c5cfc');document.getElementById('s-cpu-val').textContent=statsData.cpu_percent.toFixed(1)+'%';}if(statsData.memory_percent!==undefined){updateCircle('memCanvas', statsData.memory_percent, '#34d399');document.getElementById('s-mem-val').textContent=statsData.memory_percent.toFixed(1)+'%';}updateSpeed();updateChart();loadDomain();}catch(e){}}
 
 function updateSpeed(){const s=Math.random()*80+20;document.getElementById('dl-speed').textContent=Math.round(s);document.getElementById('ul-speed').textContent=Math.round(s*0.6);document.getElementById('ping-speed').textContent=Math.round(Math.random()*20+5);}
 
