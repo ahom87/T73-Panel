@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: vroom-gateway
+    name: vroom-gateway    # تغییر اسم از ren-gateway به vroom-gateway
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
@@ -10,5 +10,5 @@ services:
         value: admin
       - key: SECRET_KEY
         generateValue: true
-      - key: PORT
-        value: 8080
+      - key: PORT           # اضافه کردن این
+        value: 8080         # پورت 8080
