@@ -1,4 +1,3 @@
-
 import asyncio
 import json
 import os
@@ -404,7 +403,7 @@ async def delete_address(index: int, _=Depends(require_auth)):
     return {"ok": True, "addresses": list(CUSTOM_ADDRESSES)}
 
 # ============================================================
-# 📄 SUBSCRIPTION PAGE - با پشتیبانی از آی‌پی‌های تمیز
+# 📄 SUBSCRIPTION PAGE با پشتیبانی کامل از آی‌پی تمیز
 # ============================================================
 @app.get("/sub/{uid}")
 async def subscription_page(uid: str):
@@ -429,7 +428,7 @@ async def subscription_page(uid: str):
     main_link = generate_vless_link(uid, remark=f"VROOM-{link['label']}")
     sub_links.append(main_link)
     
-    # ۲. کانفیگ‌های آی‌پی تمیز
+    # ۲. کانفیگ‌های آی‌پی تمیز (به تعداد آی‌پی‌های ذخیره شده)
     for i, addr in enumerate(addresses):
         remark = f"VROOM-{link['label']}-IP{i+1}"
         vless_link = generate_vless_link(uid, remark=remark, address=addr)
@@ -469,7 +468,7 @@ async def subscription_page(uid: str):
     
     total_configs = len(sub_links)
     
-    # ====== HTML ======
+    # ====== HTML کامل صفحه ساب ======
     html = f"""<!DOCTYPE html>
 <html lang="fa">
 <head>
@@ -802,7 +801,7 @@ document.addEventListener('keydown',(e)=>{{if(e.key==='Escape')closeQR()}});
     return HTMLResponse(content=html)
 
 # ============================================================
-# WEBSOCKET & PROXY
+# WEBSOCKET & PROXY - MAX SPEED (2MB buffer)
 # ============================================================
 RELAY_BUF = 2 * 1024 * 1024
 
@@ -810,11 +809,11 @@ async def parse_vless_header(first_chunk: bytes):
     if len(first_chunk) < 24:
         raise ValueError("chunk too small")
     pos = 0
-    pos += 1
-    pos += 16
+    pos += 1  # version
+    pos += 16  # uuid
     addon_len = first_chunk[pos]
     pos += 1
-    pos += addon_len
+    pos += addon_len  # addon data
     command = first_chunk[pos]
     pos += 1
     port = int.from_bytes(first_chunk[pos:pos + 2], "big")
@@ -837,17 +836,6 @@ async def parse_vless_header(first_chunk: bytes):
     else:
         raise ValueError(f"unknown address type: {addr_type}")
     return command, address, port, first_chunk[pos:]
-
-async def check_quota(uid: str, extra_bytes: int) -> bool:
-    async with LINKS_LOCK:
-        link = LINKS.get(uid)
-        if link is None:
-            return False
-        if not link["active"]:
-            return False
-        if is_expired(link):
-            return False
-        return True
 
 async def add_usage(uid: str, n: int):
     async with LINKS_LOCK:
@@ -973,7 +961,7 @@ async def websocket_tunnel(websocket: WebSocket, uuid: str):
                         remove_ip_from_link(uid, ip)
 
 # ============================================================
-# LOGIN PAGE
+# 🚪 LOGIN PAGE
 # ============================================================
 LOGIN_HTML = r"""<!DOCTYPE html>
 <html lang="fa" data-theme="dark">
@@ -1081,24 +1069,7 @@ document.getElementById('login-form').addEventListener('submit',async e=>{
 </html>"""
 
 # ============================================================
-# DASHBOARD PAGE (همون کد قبلی)
-# ============================================================
-# (داشبورد رو چون قبلاً کامل نوشتی، اینجا فقط import میکنم)
-# ولی برای کامل بودن فایل، کل کد داشبورد هم توی فایل اصلی هست.
-
-# ============================================================
-# ROUTES FOR LOGIN & DASHBOARD
-# ============================================================
-
-@app.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request):
-    token = request.cookies.get(SESSION_COOKIE)
-    if await is_valid_session(token):
-        return RedirectResponse(url="/dashboard")
-    return HTMLResponse(content=LOGIN_HTML)
-
-# ============================================================
-# DASHBOARD HTML (کامل)
+# 📊 DASHBOARD - کامل
 # ============================================================
 DASHBOARD_HTML = r"""<!DOCTYPE html>
 <html lang="fa" data-theme="dark">
@@ -1115,6 +1086,10 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a0a12;--surface:#12121f;--surface2:#1a1a2e;--surface3:#252540;--border:rgba(255,255,255,0.05);--border2:rgba(255,255,255,0.08);--text:rgba(255,255,255,0.92);--text2:rgba(255,255,255,0.5);--text3:rgba(255,255,255,0.25);--primary:#7c5cfc;--primary-glow:rgba(124,92,252,0.3);--primary-dim:rgba(124,92,252,0.12);--accent:#a78bfa;--green:#34d399;--green-dim:rgba(52,211,153,0.1);--red:#f87171;--red-dim:rgba(248,113,113,0.08);--yellow:#fbbf24;--sidebar-bg:#0a0a12;--shadow:0 8px 40px rgba(0,0,0,0.5);}
 html[data-theme="light"]{--bg:#f0f2f5;--surface:#ffffff;--surface2:#f8f9fa;--surface3:#f3f4f6;--border:rgba(0,0,0,0.06);--border2:rgba(0,0,0,0.1);--text:rgba(0,0,0,0.88);--text2:rgba(0,0,0,0.5);--text3:rgba(0,0,0,0.25);--primary:#7c5cfc;--primary-glow:rgba(124,92,252,0.15);--primary-dim:rgba(124,92,252,0.06);--accent:#a78bfa;--green:#34d399;--green-dim:rgba(52,211,153,0.06);--red:#f87171;--red-dim:rgba(248,113,113,0.06);--yellow:#fbbf24;--sidebar-bg:#ffffff;--shadow:0 8px 40px rgba(0,0,0,0.08);}
+html[data-theme="glass"]{--bg:rgba(10,10,18,0.85);--surface:rgba(255,255,255,0.04);--surface2:rgba(255,255,255,0.06);--surface3:rgba(255,255,255,0.08);--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);--text:rgba(255,255,255,0.92);--text2:rgba(255,255,255,0.5);--text3:rgba(255,255,255,0.25);--primary:#7c5cfc;--primary-glow:rgba(124,92,252,0.3);--primary-dim:rgba(124,92,252,0.15);--accent:#a78bfa;--green:#34d399;--green-dim:rgba(52,211,153,0.1);--red:#f87171;--red-dim:rgba(248,113,113,0.08);--yellow:#fbbf24;--shadow:0 8px 40px rgba(0,0,0,0.3)}
+html[data-theme="neon"]{--bg:#0a0a12;--surface:#1a0030;--surface2:#2a0040;--surface3:#3a0050;--border:rgba(255,0,200,0.1);--border2:rgba(255,0,200,0.2);--text:#fff;--text2:rgba(255,0,200,0.6);--text3:rgba(255,0,200,0.3);--primary:#ff00cc;--primary-glow:rgba(255,0,204,0.4);--primary-dim:rgba(255,0,204,0.12);--accent:#ff6bff;--green:#00ffcc;--green-dim:rgba(0,255,204,0.1);--red:#ff0055;--red-dim:rgba(255,0,85,0.08);--yellow:#ffcc00;--shadow:0 8px 40px rgba(255,0,204,0.2)}
+html[data-theme="ocean"]{--bg:#0a1628;--surface:#0d2847;--surface2:#123a66;--surface3:#1a4d85;--border:rgba(0,200,255,0.08);--border2:rgba(0,200,255,0.15);--text:rgba(255,255,255,0.92);--text2:rgba(100,200,255,0.6);--text3:rgba(100,200,255,0.3);--primary:#00d4ff;--primary-glow:rgba(0,212,255,0.3);--primary-dim:rgba(0,212,255,0.1);--accent:#4de8ff;--green:#00ffaa;--green-dim:rgba(0,255,170,0.1);--red:#ff6b6b;--red-dim:rgba(255,107,107,0.08);--yellow:#ffd93d;--shadow:0 8px 40px rgba(0,212,255,0.15)}
+html[data-theme="sunset"]{--bg:#1a0a0a;--surface:#2d0a0a;--surface2:#4a1515;--surface3:#662020;--border:rgba(255,100,50,0.08);--border2:rgba(255,100,50,0.15);--text:rgba(255,255,255,0.92);--text2:rgba(255,150,100,0.6);--text3:rgba(255,150,100,0.3);--primary:#ff6b35;--primary-glow:rgba(255,107,53,0.3);--primary-dim:rgba(255,107,53,0.1);--accent:#ff9a76;--green:#ffd93d;--green-dim:rgba(255,217,61,0.1);--red:#ff4757;--red-dim:rgba(255,71,87,0.08);--yellow:#ffd93d;--shadow:0 8px 40px rgba(255,107,53,0.15)}
 html,body{height:100%}
 body{font-family:'Vazirmatn','Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;transition:all .4s;direction:rtl;background-image:radial-gradient(ellipse at 20% 50%,rgba(124,92,252,0.03),transparent 50%),radial-gradient(ellipse at 80% 50%,rgba(167,139,250,0.03),transparent 50%)}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:10px}
@@ -1189,8 +1164,6 @@ body{font-family:'Vazirmatn','Inter',-apple-system,BlinkMacSystemFont,sans-serif
 .toggle::after{content:'';position:absolute;width:10px;height:10px;border-radius:50%;background:var(--text3);top:2px;right:2px;transition:all .4s}
 .toggle.on{background:var(--green);border-color:var(--green);box-shadow:0 0 16px rgba(52,211,153,0.3)}
 .toggle.on::after{right:16px;background:#fff}
-.sys-bar{height:4px;background:var(--surface3);border-radius:3px;overflow:hidden}
-.sys-bar-fill{height:100%;border-radius:3px;transition:width .6s}
 .status-item{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
 .status-item:last-child{border-bottom:none}
 .status-key{color:var(--text2);font-size:11px;display:flex;align-items:center;gap:4px}
@@ -1553,4 +1526,3 @@ async def dashboard_page(request: Request):
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=CONFIG["port"])
-    
